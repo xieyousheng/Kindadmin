@@ -9,17 +9,18 @@ from django.db.models import Q
 import json
 
 
-
-@method_decorator(login_required,'dispatch')
-class DeleteTable(View):
-    def get(self,request,app_name,model_name,data_id):
+@login_required
+def deletetable(request,app_name,model_name,data_id):
+        data_id = data_id.split('_')
+        data_id = [int(i) for i in data_id]
         admin_class = site.site_dict[app_name][model_name]
-        querysets = admin_class.model.objects.filter(id=data_id)
+        querysets = admin_class.model.objects.filter(id__in=data_id)
+        if request.method == 'POST':
+            querysets.delete()
+            return redirect('/kindadmin/%s/%s/' % (app_name, model_name))
         return render(request,'kindbackend/table_obj_delete.html',locals())
-    def post(self,request,app_name,model_name,data_id):
-        admin_class = site.site_dict[app_name][model_name]
-        admin_class.model.objects.get(id=data_id).delete()
-        return redirect('/kindadmin/%s/%s/' % (app_name,model_name))
+
+
 
 @method_decorator(login_required,'dispatch')
 class AppObjList(View):

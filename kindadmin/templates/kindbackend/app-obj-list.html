@@ -13,8 +13,9 @@
           </thead>
           <tbody>
             {% for model_name in model_obj_list %}
+                {% get_admin_class admin_class app_name model_name as admin %}
             <tr>
-              <th scope="row" class="col-lg-8"><a href="{% url 'model_obj_list' app_name model_name %}">{% get_table_verbose model_name admin_class app_name %}</a></th>
+              <th scope="row" class="col-lg-8"><a href="{% url 'model_obj_list' app_name model_name %}">{% get_table_verbose admin  %}</a></th>
              <td class="col-lg-2"><a href="{% url 'add_model' app_name model_name %}"><span class="glyphicon glyphicon-plus"></span></a></td>
               <td class="col-lg-2"><a href="{% url 'model_obj_list' app_name model_name  %}"><span class="glyphicon glyphicon-pencil"></span></a></td>
             </tr>

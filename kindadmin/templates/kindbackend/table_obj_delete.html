@@ -6,7 +6,7 @@
                 {% get_app_name admin_class as app_name %}
               <li><a href="{%  url 'app_obj_list' app_name %}">{{ app_name }}</a></li>
                 {% get_model_name admin_class as model_name %}
-              <li><a href="{% url 'model_obj_list' app_name model_name %}">{% get_table_verbose model_name admin_class%}</a></li>
+              <li><a href="{% url 'model_obj_list' app_name model_name %}">{% get_table_verbose  admin_class%}</a></li>
               <li><a href="#"> {%  get_querysets_str querysets %}</a></li>
               <li>Delete</li>
             </ol>
@@ -18,7 +18,8 @@
         {% endfor %}
     </div>
     <hr>
-    <form action="" method="post">{% csrf_token %}
+    {% get_querysets_str querysets 'id' as data_id %}
+    <form action="/kindadmin/{{ app_name }}/{{ model_name }}/{{ data_id }}/delete/" method="post">{% csrf_token %}
         <button class="btn btn-danger">确定</button>
         {% if is_many %}
             <a href="{% url 'model_obj_list' app_name model_name%}" class="btn btn-default">返回</a>

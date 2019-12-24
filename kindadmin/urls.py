@@ -14,6 +14,6 @@ urlpatterns = [
     re_path('^(?P<app_name>\w+)/(?P<model_name>\w+)/$',process_view.tableobjlist,name='model_obj_list'),
     re_path('^(?P<app_name>\w+)/(?P<model_name>\w+)/add/$',process_view.AddTable.as_view(),name='add_model'),
     re_path('^(?P<app_name>\w+)/(?P<model_name>\w+)/(?P<data_id>\d+)/change/$',process_view.EditTable.as_view(),name='edit_model'),
-    re_path('^(?P<app_name>\w+)/(?P<model_name>\w+)/(?P<data_id>\d+)/delete/$',process_view.DeleteTable.as_view(),name='delete_model'),
+    re_path('^(?P<app_name>\w+)/(?P<model_name>\w+)/(?P<data_id>\w+)/delete/$',process_view.deletetable,name='delete_model'),
 
 ]

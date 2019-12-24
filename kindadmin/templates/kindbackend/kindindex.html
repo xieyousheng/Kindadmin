@@ -1,5 +1,5 @@
 {% extends 'kindbackend/index.html' %}
-
+{% load model_table_row %}
 {% block right-content-contarner %}
     <ol class="breadcrumb">
               <li><a href="/kindadmin/">Home</a></li>
@@ -15,7 +15,8 @@
           <tbody>
             {% for model_name in model_table %}
             <tr>
-              <th scope="row" class="col-lg-8"><a href="{% url 'model_obj_list' app_name model_name %}">{{ model_name }}</a></th>
+            {% get_admin_class enable_app app_name model_name as admin_class%}
+              <th scope="row" class="col-lg-8"><a href="{% url 'model_obj_list' app_name model_name %}">{% get_table_verbose admin_class%}</a></th>
               <td class="col-lg-2"><a href="{% url 'add_model' app_name model_name %}"><span class="glyphicon glyphicon-plus"></span></a></td>
               <td class="col-lg-2"><a href="{% url 'model_obj_list' app_name model_name  %}"><span class="glyphicon glyphicon-pencil"></span></a></td>
             </tr>

@@ -18,22 +18,20 @@ def get_querysets_str(querysets,type='name'):
     if type == 'name':
         result = [i.__str__() for i in querysets]
     elif type == 'id':
-        result = [i.id for i in querysets]
-        return json.dumps(result)
+        result = [str(i.id) for i in querysets]
+        return '_'.join(result)
     return ' | '.join(result)
 
 
 @register.simple_tag
-def get_table_verbose(model_name,admin_class,app_name=None):
+def get_table_verbose(admin_class):
     '''
     获取表的verbose_name （中文名）
     :param admin_class:
     :return:
     '''
-    if app_name:
-        verbose = admin_class[app_name][model_name].model._meta.verbose_name_plural
-    else:
-        verbose = admin_class.model._meta.verbose_name_plural
+    model_name = get_model_name(admin_class)
+    verbose = admin_class.model._meta.verbose_name_plural
     return  verbose if verbose else  model_name
 
 @register.simple_tag
@@ -265,4 +263,9 @@ def get_model_name(admin_class):
     :param admin_class:
     :return:
     '''
+    print(admin_class)
     return  admin_class.model._meta.model_name
+
+@register.simple_tag
+def get_admin_class(site,app_name,model_name):
+    return  site[app_name][model_name]
