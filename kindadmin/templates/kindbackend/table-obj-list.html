@@ -1,0 +1,128 @@
+{% extends 'kindbackend/index.html' %}
+{% load model_table_row %}
+{% block right-content-contarner %}
+    <ol class="breadcrumb">
+              <li><a href="/kindadmin/">Home</a></li>
+              <li><a href="{%  url 'app_obj_list' app_name %}">{{ app_name }}</a></li>
+              <li><a href="#">{% get_table_verbose model_name admin_class%}</a></li>
+            </ol>
+    <div id="warning-msg"></div>
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <h3>Select {{ model_name }} to change</h3>
+        </div>
+        <div class=" col-lg-offset-4 col-lg-2"></div>
+        <h4><a href="{% url 'add_model' app_name model_name %}" class="btn btn-primary">ADD {{ model_name }} INFO <span class="glyphicon glyphicon-plus"> </span></a></h4>
+    </div>
+    <hr>
+      {% if admin_class.list_filter %}
+            <form class="form-inline">
+            {% for filter in admin_class.list_filter %}
+                {% filter_select filter admin_class %}
+            {% endfor %}
+                <input type="text" value="{% get_handel_id request '_o' %}" name="_o" class="hidden">
+                <input type="text" value="{% get_handel_id request '_q' %}" name="_q" class="hidden">
+                <input type="submit" value="过滤" class="btn btn-primary">
+            </form>
+            {% endif %}
+    <hr>
+    <div class="row">
+            <div class="col-lg-6">
+                 <form action="" class="form-inline" method="post">{% csrf_token %}
+                    <label for="">Action：</label>
+                    <select name="action" class="form-control" style="width: 200px">
+                        <option value="">--------</option>
+
+                        {% for action in admin_class.actions %}
+
+                            <option value="{{ action }}">{{ action }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="button" class="btn btn-primary" value="GO" onclick="ActionCheck(this)">
+                </form>
+            </div>
+            <div class="col-lg-6">
+                  {% if admin_class.search_fields %}
+                    <form class="form-inline">
+
+                        <div class="input-group col-md-7">
+                          <input type="text" class="form-control" id="exampleInputAmount" placeholder="请输入搜索关键字,{% search_placeholder admin_class %}" name="_q" value="{% get_handel_id request '_q' %}">
+                          {% render_url_geturi request 'p' '_q' %}
+
+                        </div>
+
+                      <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
+                    </form>
+
+        {% endif %}
+            </div>
+    </div>
+    <hr>
+     <div style="min-height: 200px">
+                   <table class="table table-striped " id="model_table">
+                  <thead>
+                    <tr>
+                    <th><input  onclick="CheckAll(this)" type="checkbox"></th>
+                    {% if admin_class.list_display %}
+                        {% for head_th in admin_class.list_display %}
+                            {% table_head head_th admin_class forloop.counter request%}
+                        {% endfor %}
+                    {% else %}
+                        <th>{{ model_name.upper }}</th>
+                    {% endif %}
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    {% for row in model_data %}
+                        {% table_row row admin_class %}
+                     {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+              {% convert pageitem %}
+
+
+
+
+<script>
+
+    function ActionCheck(that) {
+        var from = $(that).parent();
+        var html = '<div class="alert alert-warning alert-dismissible"  role="alert">\n' +
+                '      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>\n' +
+                '      <strong>Warning!</strong> <span tag="msg">Better check yourself, you\'re not looking too good.</span>\n' +
+                '    </div>'
+        if(!$(that).siblings('select').val()){
+            $('#warning-msg').html(html);
+            $('#warning-msg').find('span[tag="msg"]').html("请选择action方法！")
+            return false
+        }
+        if($('#model_table').find('input[name="check_id"]:checked').length == 0){
+             $('#warning-msg').html(html);
+             $('#warning-msg').removeClass('hidden').find('span[tag="msg"]').html("请选择相应的数据！")
+            return false
+        }
+
+        var check_id = document.createElement('input');
+        $(check_id).prop('type','text').prop('name','check_id').addClass('hidden');
+        var check_data_list = Array();
+        $('#model_table').find('input[name="check_id"]:checked').each(function () {
+            check_data_list.push($(this).val());
+        })
+        $(check_id).val(JSON.stringify(check_data_list))
+        from.append(check_id);
+        from.submit();
+    }
+    function CheckAll(that) {
+        var table = $(that).parent().parent().parent().parent();
+        var status = $(that).prop('checked');
+        table.find('input[name="check_id"]').each(function () {
+            $(this).prop('checked',status);
+        })
+    }
+</script>
+{% endblock %}
+

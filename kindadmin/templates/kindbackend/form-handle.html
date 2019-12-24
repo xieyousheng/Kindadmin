@@ -1,0 +1,96 @@
+<form class="form-horizontal" method="post" novalidate>{% csrf_token %}
+{% load model_table_row %}
+{% for field in from_obj %}
+  <div class="form-group">
+       <label for="inputEmail3" class="col-sm-2 control-label">{{ field.label }}</label>
+        <div class="col-sm-10">
+        {% if field.name in admin_class.filter_horizontal %}
+
+            <div class="col-lg-5" >
+
+                <span class="glyphicon glyphicon-search"></span>
+                <input type="search" class="form-control " placeholder="请输入关键字" oninput="BlurSearch(this,'id_{{ field.name }}_from')" style="width: 94%;display: inline-block">
+
+                <select id="id_{{ field.name }}_from" class="form-control"  multiple style="height: 80px;overflow: auto">
+                    {% get_available_m2m_data field.name admin_class from_obj as available_m2m_data %}
+                    {% for obj in available_m2m_data %}
+                        <option value="{{ obj.id }}" onclick="MoveSelectOption(this,'id_{{ field.name }}_to','left')" >{{ obj }}</option>
+                    {% endfor %}
+                </select>
+                <p style="margin-left: 100px"><a onclick="MoveSelectOptionAll(this,'id_{{ field.name }}_to')">Choose all  <span class="glyphicon glyphicon-menu-right"></span></a> </p>
+            </div>
+            <div class="col-lg-5" style="height: 100px">
+                <select tag="select_m2m" style="height: 115px"  class="form-control" id="id_{{ field.name }}_to" name="{{ field.name }}" multiple >
+                    {% get_selected_m2m_data field.name from_obj as selected_m2m_data %}
+                    {% for obj in selected_m2m_data %}
+                        <option value="{{ obj.id }}" onclick="MoveSelectOption(this,'id_{{ field.name }}_from','right')" >{{ obj }}</option>
+                    {% endfor %}
+                </select><span style="color: red">{{ field.errors.0 }}</span>
+                <p style="margin-left: 100px"><a onclick="MoveSelectOptionAll(this,'id_{{ field.name }}_from')"><span class="glyphicon glyphicon-menu-left"></span>Remove all</a></p>
+            </div>
+        {% else %}
+          {{ field }}<span style="color: red">{{ field.errors.0 }}</span>
+        {% endif %}
+        </div>
+  </div>
+{% endfor %}
+{% if admin_class.is_change %}
+    {% for field in admin_class.readonly_fields %}
+        <div class="form-group">
+           <label for="inputEmail3" class="col-sm-2 control-label">{% get_verbose_name field admin_class %}</label>
+            <div class="col-sm-10">
+              <p>{% get_field_value field obj admin_class %}</p>
+            </div>
+      </div>
+    {% endfor %}
+{% endif %}
+     <div class="form-group">
+         {% if admin_class.is_change %}
+         <div class="col-sm-offset-1 col-sm-10">
+          <a href="{% url 'delete_model' app_name model_name data_id %}" type="button" class="btn btn-danger"  >Delete</a>
+        </div>
+         {% endif %}
+        <div class="col-sm-offset-11 col-sm-10">
+          <button type="button" class="btn btn-primary"  onclick="VerificationBeforeFormSubmit(this)">Save</button>
+        </div>
+      </div>
+</form>
+
+<script src="/static/js/jquery.min.js"></script>
+<script>
+    function BlurSearch(that,from_id) {
+        search_val = $(that).val().toUpperCase();
+        $('#'+from_id).children().each(function () {
+            if($(this).html().toUpperCase().search(search_val) != -1){
+                $(this).removeClass('hidden');
+            }else {
+                $(this).addClass('hidden');
+            }
+        })
+    }
+
+    function  MoveSelectOptionAll(from_to,target_to) {
+        var sel = $(from_to).parent().parent().children('select')
+        $(sel).each(function () {
+            if($(this).children('option').prop('style')){return true;}
+            MoveSelectOption($(this).children('option'),target_to,'left');
+        });
+    }
+    
+    function VerificationBeforeFormSubmit(that) {
+        var from_ele  =  $(that).parent().parent().parent();
+        from_ele.find('select[tag="select_m2m"] option').prop('selected',true);
+        from_ele.submit();
+    }
+
+    function MoveSelectOption(from_id,target_id,type) {
+         if (type == 'left'){
+                $(from_id).attr('onclick',$(from_id).attr('onclick').replace('to','from').replace('left','right'));
+                $('#'+target_id).append($(from_id));
+            }else
+            {
+                 $(from_id).attr('onclick',$(from_id).attr('onclick').replace('from','to').replace('right','left'));
+                $('#'+target_id).append($(from_id));
+            }
+    }
+</script>

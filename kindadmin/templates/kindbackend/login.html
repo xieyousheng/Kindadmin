@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block extra-css %}
+    <link rel="stylesheet" href="/static/css/signin.css">
+{% endblock %}
+{% block body %}
+<div class="container">
+
+      <form class="form-signin" method="post" novalidate>{% csrf_token %}
+        <h2 class="form-signin-heading">后台登录</h2>
+        <label for="inputUser" class="sr-only">用户名</label>
+        <input type="email"  name="username" class="form-control" placeholder="用户名">
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password"  name="password" class="form-control" placeholder="密码">
+        <label>
+             <input type="text"  name="code" class="form-control" placeholder="验证码" style="width: 58%;display: inline-block">
+          <img id="check_code_img" src="/create_code_img/" style="display: inline-block" onclick="refresh_check_code(this)">
+        </label>
+
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" value="remember-me"> 记住我
+          </label>
+            <input type="hidden" value="{{ request.session.public_key }}" id="pubkey">
+            <span style="color: red;">{{ error }}</span>
+        </div>
+        <button id="login_sub" class="btn btn-lg btn-primary btn-block" type="button" onclick="logsub(this)">登录</button>
+      </form>
+
+    </div>
+    <script src="/static/js/jsencrypt.js"></script>
+    <script>
+    function logsub(that) {
+                //公钥加密
+                var pwd =$('input[name=password]').val(); //明文密码
+                var pubkey = $('#pubkey').val(); //公钥，pkcs#1格式，字符串
+                var jsencrypt = new JSEncrypt(); //加密对象
+                jsencrypt.setPublicKey(pubkey); // 设置密钥
+                var en_pwd = jsencrypt.encrypt(pwd); //加密
+                $('input[name=password]').val(en_pwd); //返回给密码输入input
+                $(that).parent().submit()//post提交
+    }
+    function refresh_check_code(that) {
+        $(that).attr('src',$(that).attr('src')+'?');
+    }
+    </script>
+{% endblock %}
